@@ -33,6 +33,7 @@ $(document).ready(function(){
         var susa = $('#susa').attr('value');
         var precio_max = $('#precio_max').attr('value');
         var precio_diva = $('#precio_diva').attr('value');
+        var limitado = $('#limitado').attr('value');
         
         var url = "<?php echo site_url();?>/productos/submit_nuevo_producto";
         
@@ -50,7 +51,8 @@ $(document).ready(function(){
             lc: lc,
             susa: susa,
             precio_max: precio_max,
-            precio_diva: precio_diva
+            precio_diva: precio_diva,
+            limitado: limitado
         };
         
         if(tipo_producto > 0){

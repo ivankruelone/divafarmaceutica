@@ -37,7 +37,8 @@ $('#cierra_surtido_form').submit(function(event){
         var url = "<?php echo site_url();?>/pedidos/cerrar_surtido";
     
         var variables = {
-            id: $('input[name="id"]').attr('value')
+            id: $('input[name="id"]').attr('value'),
+            surtio: $('#surtio').attr('value');
         };
         
         $.post( url, variables, function(data) {

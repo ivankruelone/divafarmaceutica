@@ -114,4 +114,88 @@ class Stats extends CI_Controller {
         $data['query'] = $this->inv_model->detalle_negados($clave, $perini, $perfin);
         $this->load->view('stats/detalle_negados_resultado', $data);
     }
+
+	function precio_historicos()
+	{
+	   $data['menu'] = 10;
+	   $data['submenu'] = 10.1;
+       $data['titulo'] = 'Historico de precios';
+       $data['contenido'] = 'stats/precios_historico';
+       $data['js'] = 'stats/js_precios_historico';
+       $data['claves'] = $this->comun->productos_combo();
+       $this->load->view('main', $data);
+        
+	}
+    
+    function submit_precios_historico()
+    {
+        $this->load->model('productos_model');
+        $clave = $this->input->post('clave');
+        $proveedor = $this->input->post('proveedor');
+        
+        $sql = "SELECT o.id, o.razon, descripcion, susa, d.precio, c.fec_doc FROM entradas_c c
+inner join entradas d on c.id = d.e_id
+inner join productos p on d.p_id = p.id
+inner join proveedores o on c.proveedor_id = o.id
+where clave = ? and c.tipo = 1 and c.subtipo = 4 and estatus in(1, 3) and c.proveedor_id = ?
+order by c.fec_doc desc;";
+        
+        $query = $this->db->query($sql, array($clave, $proveedor));
+        $data['query'] = $query->result();
+        $data['producto'] = $this->productos_model->producto_clave_precio($clave, $proveedor);
+        $this->load->view('stats/historico_precios_busca', $data);
+        
+        
+    }
+
+    function get_json_precio_historico($clave)
+    {
+        header("Content-type: text/json");
+        
+        $sql = "SELECT d.precio, unix_timestamp(c.fec_doc) as fecha FROM entradas_c c
+inner join entradas d on c.id = d.e_id
+inner join productos p on d.p_id = p.id
+inner join proveedores o on c.proveedor_id = o.id
+where clave = ? and c.tipo = 1 and c.subtipo = 4 and estatus in(1, 3)
+order by c.fec_doc asc;";
+        
+        $query = $this->db->query($sql, $clave);
+        
+        $a = "[";
+        
+        foreach($query->result() as $row)
+        {
+            //$a.= "[Date.UTC(".$row->anio.",".$row->mes.",".$row->dia.",".$row->horas.",".$row->minuto.",".$row->segundo."),".$row->inventario."],";
+            $a.= "[".($row->fecha*1000).",".$row->precio."],";
+        }
+        
+        $a = substr($a, 0, -1); 
+        
+        $a.="]";
+        
+        
+        echo $a;
+        
+    }
+
+    function proveedor_clave()
+    {
+        $clave = $this->input->post('clave');
+        $a = null;
+        
+        $sql = "SELECT o.id, o.razon FROM entradas_c c
+inner join entradas d on c.id = d.e_id
+inner join productos p on d.p_id = p.id
+inner join proveedores o on c.proveedor_id = o.id
+where clave = ? and c.tipo = 1 and c.subtipo = 4 and estatus in(1, 3)
+group by o.id;";
+        $query = $this->db->query($sql, $clave);
+        
+        foreach($query->result() as $row)
+        {
+            $a .= "<option value=\"$row->id\">$row->id - $row->razon</option>";
+        }
+        
+        echo $a;
+    }
 }

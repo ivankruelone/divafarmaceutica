@@ -116,6 +116,7 @@ class Sucursales_model extends CI_Model {
         $data->condiciones = $this->input->post('condiciones');
         $data->limite = $this->input->post('limite');
         $data->rfc = $this->input->post('rfc');
+        $data->descuento = $this->input->post('descuento');
 
         $this->db->set('modificado', 'now()', false);
         $this->db->set('alta', 'now()', false);
@@ -132,7 +133,6 @@ class Sucursales_model extends CI_Model {
     //contacto, tel, email, alta, modificado
         $data->cia = $this->input->post('cia');
         $data->juris = $this->input->post('juris');
-        $data->numsuc = $this->input->post('numsuc');
         $data->sucursal = $this->input->post('sucursal');
         $data->calle = $this->input->post('calle');
         $data->exterior = $this->input->post('exterior');
@@ -140,12 +140,21 @@ class Sucursales_model extends CI_Model {
         $data->colonia = $this->input->post('colonia');
         $data->referencia = $this->input->post('referencia');
         $data->municipio = $this->input->post('municipio');
-        $data->estado_int = $this->input->post('estado_int');
-        $data->estado = $this->__get_estado($this->input->post('estado_int'));
+        $data->estado_int = 0;
+        $data->estado = $this->input->post('estado');
         $data->cp = $this->input->post('cp');
-        $data->diaped = $this->input->post('diaped');
-        $data->auto = $this->input->post('auto');
-        $data->cad_min = $this->input->post('cad_min');
+        $data->diaped = 0;
+        $data->auto = 0;
+        $data->cad_min = 0;
+
+        $data->pais = $this->input->post('pais');
+        $data->contacto = $this->input->post('contacto');
+        $data->tel = $this->input->post('tel');
+        $data->email = $this->input->post('email');
+        $data->condiciones = $this->input->post('condiciones');
+        $data->limite = $this->input->post('limite');
+        $data->rfc = $this->input->post('rfc');
+        $data->descuento = $this->input->post('descuento');
 
         $this->db->set('modificado', 'now()', false);
         

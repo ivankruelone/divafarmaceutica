@@ -116,6 +116,50 @@ class Pedidos extends CI_Controller {
         
 	}
 
+	function entregados()
+	{
+	   $this->load->library('pagination');
+       $config['first_link'] = 'Primera';
+       $config['last_link'] = 'Ultima';
+       $config['next_link'] = 'Siguiente';
+       $config['prev_link'] = 'Anterior';
+       $config['base_url'] = site_url().'/pedidos/entregados/';
+       $config['total_rows'] = $this->pedidos_model->pedidos_rows(4);
+       $config['per_page'] = 500;
+       $this->pagination->initialize($config); 
+
+	   $data['menu'] = 4;
+	   $data['submenu'] = 4.8;
+       $data['titulo'] = 'Pedidos Entregados';
+       $data['query'] = $this->pedidos_model->pedidos(4, $config['per_page'], $this->uri->segment(3));
+       $data['contenido'] = 'pedidos/pedidos';
+       $data['js'] = "pedidos/js_pedidos";
+       $this->load->view('main', $data);
+        
+	}
+
+	function pagados()
+	{
+	   $this->load->library('pagination');
+       $config['first_link'] = 'Primera';
+       $config['last_link'] = 'Ultima';
+       $config['next_link'] = 'Siguiente';
+       $config['prev_link'] = 'Anterior';
+       $config['base_url'] = site_url().'/pedidos/entregados/';
+       $config['total_rows'] = $this->pedidos_model->pedidos_rows(6);
+       $config['per_page'] = 500;
+       $this->pagination->initialize($config); 
+
+	   $data['menu'] = 4;
+	   $data['submenu'] = 4.9;
+       $data['titulo'] = 'Pedidos Pagados (Historico)';
+       $data['query'] = $this->pedidos_model->pedidos(6, $config['per_page'], $this->uri->segment(3));
+       $data['contenido'] = 'pedidos/pedidos';
+       $data['js'] = "pedidos/js_pedidos";
+       $this->load->view('main', $data);
+        
+	}
+
 	function cancelados()
 	{
 	   $this->load->library('pagination');
@@ -181,7 +225,58 @@ class Pedidos extends CI_Controller {
        $this->load->view('main', $data);
         
 	}
+
+	function empleados()
+	{
+	   $data['menu'] = 4;
+	   $data['submenu'] = 4.10;
+       $data['titulo'] = 'Catalogo de empleados';
+       $data['query'] = $this->pedidos_model->empleados();
+       $data['contenido'] = 'pedidos/empleados';
+       //$data['js'] = "pedidos/js_pedidos";
+       $this->load->view('main', $data);
+        
+	}
     
+	function nuevo_empleado()
+	{
+	   $data['menu'] = 4;
+	   $data['submenu'] = 4.10;
+       $data['titulo'] = 'Nuevo empleado';
+       $data['contenido'] = 'pedidos/nuevo_empleado';
+       //$data['js'] = "pedidos/js_pedidos";
+       $this->load->view('main', $data);
+        
+	}
+    
+    function submit_nuevo_empleado()
+    {
+        $nombre = trim(strtoupper($this->input->post('nombre')));
+        $this->pedidos_model->nuevo_empleado_insert($nombre);
+        redirect('pedidos/empleados');
+    }
+    
+	function editar_empleado($num_emp)
+	{
+	   $data['menu'] = 4;
+	   $data['submenu'] = 4.10;
+       $data['titulo'] = 'Editar empleado';
+       $data['contenido'] = 'pedidos/editar_empleado';
+       $data['row'] = $this->pedidos_model->empleado($num_emp);
+       //$data['js'] = "pedidos/js_pedidos";
+       $this->load->view('main', $data);
+        
+	}
+
+    function submit_editar_empleado()
+    {
+        $num_emp = $this->input->post('num_emp');
+        $nombre = trim(strtoupper($this->input->post('nombre')));
+        $activo = $this->input->post('activo');
+        $this->pedidos_model->empleado_update($num_emp, $nombre, $activo);
+        redirect('pedidos/empleados');
+    }
+
 	function subida()
 	{
 	   $data['menu'] = 4;
@@ -429,13 +524,55 @@ class Pedidos extends CI_Controller {
 	{
 	   $data['menu'] = 4;
 	   $data['submenu'] = $submenu;
-       $data['titulo'] = 'Captura de Piezas Surtidas';
+       $data['titulo'] = 'Pedido embarcado';
        $data['contenido'] = 'pedidos/embarcado';
        $data['row'] = $this->pedidos_model->get_pedido($id);
        $data['js'] = 'pedidos/js_embarcado';
        $this->load->view('main', $data);
         
 	}
+    
+	function entregado($id, $submenu)
+	{
+	   $data['menu'] = 4;
+	   $data['submenu'] = $submenu;
+       $data['titulo'] = 'Pedido entregado';
+       $data['contenido'] = 'pedidos/entregado';
+       $data['row'] = $this->pedidos_model->get_pedido($id);
+       $data['js'] = 'pedidos/js_entregado';
+       $this->load->view('main', $data);
+        
+	}
+
+	function pagado($id, $submenu)
+	{
+	   $data['menu'] = 4;
+	   $data['submenu'] = $submenu;
+       $data['titulo'] = 'Pedido pagado';
+       $data['contenido'] = 'pedidos/pagado';
+       $data['row'] = $this->pedidos_model->get_pedido($id);
+       $data['js'] = 'pedidos/js_pagado';
+       $this->load->view('main', $data);
+        
+	}
+
+    function submit_captura_fecha_entrega()
+    {
+        $id = $this->input->post('id');
+        $fecha = $this->input->post('fecha');
+        $this->pedidos_model->cerrar_embarcado($id, $fecha);
+        redirect('pedidos/entregados');
+    }
+
+    function submit_captura_pedido_pagado()
+    {
+        $id = $this->input->post('id');
+        $fecha = $this->input->post('fecha');
+        $forma = $this->input->post('forma');
+        $referencia = $this->input->post('referencia');
+        $this->pedidos_model->cerrar_entregado($id, $fecha, $forma, $referencia);
+        redirect('pedidos/pagados');
+    }
 
     function detalle_captura_cambio()
     {
@@ -522,14 +659,17 @@ class Pedidos extends CI_Controller {
     {
         $data['header'] = $this->pedidos_model->previo_pedido_header_alt($id);
         $data['detalle'] = $this->pedidos_model->previo_pedido_surtido($id);
-        $this->load->view('impresiones/previo_pedido_surtido', $data);
+        
+        echo $data['header'];
+        echo $data['detalle'];
+        //$this->load->view('impresiones/previo_pedido_surtido', $data);
     }
 
     function pedido_embarque($id)
     {
         $data['header'] = $this->pedidos_model->embarque_header($id);
         $data['detalle'] = $this->pedidos_model->pedido_embarque($id);
-        $data['formato'] = $this->pedidos_model->formato($id);
+        //$data['formato'] = $this->pedidos_model->formato($id);
         //echo $this->pedidos_model->embarque_header($id);
         //echo $this->pedidos_model->pedido_embarque($id);
         $this->load->view('impresiones/previo_pedido_embarque', $data);

@@ -1,3 +1,4 @@
+<section class="grid_12">
 <div class="block-border">
     <div class="block-content" id="hoja_captura">
         <div align="center">
@@ -44,6 +45,7 @@
                 
                 
                 <input type="number" name="piezas" id="piezas" required="required" placeholder="Piezas" />
+                <input type="number" name="descuento" id="descuento" required="required" placeholder="Descuento" />
                 <button class="big" type="submit">Agregar al Pedido</button>
 
 
@@ -75,3 +77,4 @@
     
     </div>
 </div>
+</section>

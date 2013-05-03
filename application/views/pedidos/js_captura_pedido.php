@@ -75,12 +75,14 @@ $('#captura_clave_form').submit(function(event){
         clave: a[0].trim(),
         piezas: $('#piezas').attr('value'),
         id: $('input[name="id"]').attr('value'),
-        estatus: $('input[name="estatus"]').attr('value')
+        estatus: $('input[name="estatus"]').attr('value'),
+        descuento: $('#descuento').attr('value')
     };
     
     $.post( url, variables, function(data) {
         $('#tabla_captura').html(data);
         $('#piezas').val('');
+        $('#descuento').val('');
         $('#clave').val('').focus();
         $('#total_top').html($('#total').html());
     });

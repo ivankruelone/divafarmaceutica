@@ -1,3 +1,4 @@
+<section class="grid_12">
 <div class="block-border">
     <div class="block-content" id="hoja_captura">
         <div align="center">
@@ -73,3 +74,4 @@
     
     </div>
 </div>
+</section>

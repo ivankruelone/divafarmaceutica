@@ -138,6 +138,8 @@
 
 	<script src="<?php echo base_url();?>js/jquery.printElement.min.js"></script>
 	
+	<script src="<?php echo base_url();?>js/highcharts/highcharts.js"></script>
+	<script src="<?php echo base_url();?>js/highcharts/modules/exporting.js"></script>
 	<!-- Charts library -->
 
 		<?php

@@ -1,15 +1,26 @@
 <script src="<?php echo base_url();?>js/jquery.maskedinput-1.3.min.js"></script>
+<?php
+	$mal = array(
+                                      'src' => base_url().'images/icons/web-app/24/error.png',
+                                      'width' => '18',
+                                      'height' => '18',
+                            );
+	$bien = array(
+                                      'src' => base_url().'images/icons/web-app/24/good_or_tick.png',
+                                      'width' => '18',
+                                      'height' => '18',
+                            );
+?>
 <script language="javascript" type="text/javascript">
 
 $(document).ready(function(){
-    $('#cia').focus();
-    elige_juris();
+    $('#rfc').focus();
     
-    $('#estado_int').change(function(){
-        actualiza_juris();
-    });
 });
 
+$('#rfc').blur(function(){
+    valida_rfc();
+});
 
 $('input[type="text"]').blur(function(){
     $(this).val($(this).attr('value').toUpperCase());
@@ -20,7 +31,6 @@ $("#cp").mask("99999");
 $('#nuevo_cliente_form').submit(function(event)
 {
     event.preventDefault();
-    if(cia() && estado_int() && juris()){
         
     var url = "<?php echo site_url();?>/sucursales/submit_editar_sucursal";
     
@@ -28,9 +38,10 @@ $('#nuevo_cliente_form').submit(function(event)
 
     var variables = {
         id: $('#id').attr('value'),
-        cia: $('#cia').attr('value'),
-        juris: $('#juris').attr('value'),
-        numsuc: $('#numsuc').attr('value'),
+        cia: 0,
+        juris: 0,
+        rfc: $('#rfc').attr('value'),
+        numsuc: 0,
         sucursal: $('#sucursal').attr('value'),
         calle: $('#calle').attr('value'),
         exterior: $('#exterior').attr('value'),
@@ -38,11 +49,15 @@ $('#nuevo_cliente_form').submit(function(event)
         colonia: $('#colonia').attr('value'),
         referencia: $('#referencia').attr('value'),
         municipio: $('#municipio').attr('value'),
-        estado_int: $('#estado_int').attr('value'),
+        estado: $('#estado').attr('value'),
+        pais: $('#pais').attr('value'),
         cp: $('#cp').attr('value'),
-        diaped: $('#diaped').attr('value'),
-        auto: $('#auto').attr('value'),
-        cad_min: $('#cad_min').attr('value')
+        contacto: $('#contacto').attr('value'),
+        tel: $('#tel').attr('value'),
+        email: $('#email').attr('value'),
+        condiciones: $('#condiciones').attr('value'),
+        limite: $('#limite').attr('value'),
+        descuento: $('#descuento').attr('value'),
     };
     
     $.post( url, variables, function(data) {
@@ -56,63 +71,86 @@ $('#nuevo_cliente_form').submit(function(event)
         
         
     });
-    }else{
-        
-    }
     
 }
 );
 
 
-function cia(){
-    var cia = $('#cia').attr('value');
-    if(cia == 0)
-    {
-        alert('Selecciona una Compañia');
+function valida_rfc(){
+    
+    var valor = $( '#rfc' ).attr('value');
+    var largo = $( '#rfc' ).attr('value').length;
+
+    if(largo == 12){
+        
+        var siglas = valor.substring(0, 3);
+        var clave = valor.substring(9, 12);
+        var RegExPattern = /[a-zA-Z]{3}/;
+        var RegExPattern2 = /[a-zA-Z0-9]{3}/;
+        
+        var anio = valor.substring(3, 5);
+        var mes = valor.substring(5, 7);
+        var dia = valor.substring(7, 9);
+        
+        if(valida_fecha(anio, mes, dia) && siglas.match(RegExPattern) && clave.match(RegExPattern2)){
+            $('#span_rfc').html('<?php echo img($bien);?>');
+            return true;
+        }else{
+            $('#span_rfc').html('<?php echo img($mal);?>');
+            return false;
+        }
+        
+    }else if(largo == 13){
+
+        var siglas = valor.substring(0, 4);
+        var clave = valor.substring(10, 13);
+        var RegExPattern = /[a-zA-Z]{4}/;
+        var RegExPattern2 = /[a-zA-Z0-9]{3}/;
+        
+        var anio = valor.substring(4, 6);
+        var mes = valor.substring(6, 8);
+        var dia = valor.substring(8, 10);
+        
+        if(valida_fecha(anio, mes, dia) && siglas.match(RegExPattern) && clave.match(RegExPattern2)){
+            $('#span_rfc').html('<?php echo img($bien);?>');
+            return true;
+        }else{
+            $('#span_rfc').html('<?php echo img($mal);?>');
+            return false;
+        }
+        
+    }else{
+        $('#span_rfc').html('<?php echo img($mal);?>');
         return false;
-    }else
-    {
-        return true;
     }
+
 }
 
-function estado_int(){
-    var estado_int = $('#estado_int').attr('value');
-    if(estado_int == 0)
-    {
-        alert('Selecciona un Estado');
+function valida_fecha(anio, mes, dia){
+    
+    if(anio <= 99 && anio >= 0){
+        
+        
+        if(mes >= 1 && mes <=12){
+            
+            if((mes == 1 || mes == 3 || mes == 5 || mes == 7 || mes == 8 || mes == 10 || mes == 12) && dia >= 1 && dia <= 31){
+                return true;
+            }else if((mes == 4 || mes == 6 || mes == 9 || mes == 11) && dia >= 1 && dia <= 30){
+                return true;
+            }else if(mes == 2 && dia >= 1 && dia <= 29){
+                return true;
+            }else{
+                return false;
+            }
+            
+        }else{
+            return false;
+        }
+        
+    }else{
         return false;
-    }else
-    {
-        return true;
     }
-}
-
-function juris(){
-    var juris = $('#juris').attr('value');
-    if(juris == 0)
-    {
-        alert('Selecciona una Jurisdiccion');
-        return false;
-    }else
-    {
-        return true;
-    }
-}
-
-function actualiza_juris(){
-    var url = "<?php echo site_url();?>/welcome/get_juris_combo";
-    var variables = {
-            estado: $('#estado_int').attr('value')
-        };
-    $.post( url, variables, function(data) {
-        $('#juris').html(data);
-    });
-}
-
-function elige_juris()
-{
-    $('#juris').val('<?php echo $row->juris; ?>');
+    
 }
 
 </script>

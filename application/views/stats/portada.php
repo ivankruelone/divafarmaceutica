@@ -39,6 +39,7 @@
                 <li><?php echo anchor('stats/req_vs_sur_diario/', 'Requeridas Vs. Surtidas Diarias'); ?></li>
                 <li><?php echo anchor('stats/negados/', 'Negados en un periodo de tiempo'); ?></li>
                 <li><?php echo anchor('stats/surtidos/', 'Surtidos en un periodo de tiempo'); ?></li>
+                <li><?php echo anchor('stats/precio_historicos/', 'Historico de precios'); ?></li>
             </ul>
             
             

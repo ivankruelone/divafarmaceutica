@@ -107,7 +107,7 @@
                                 </span>
                             </td>
 							<td class="table-actions" align="center">
-                                <?php echo anchor('inv/inv_detalle_modal/'.$row->id, 'Detalle', array('id' => 'detalle_'.$row->id.'_'.$row->descripcion, 'class' => 'button red'))?>
+                                <?php //echo anchor('inv/inv_detalle_modal/'.$row->id, 'Detalle', array('id' => 'detalle_'.$row->id.'_'.$row->descripcion, 'class' => 'button red'))?>
 							</td>
 						</tr>
                     <?php

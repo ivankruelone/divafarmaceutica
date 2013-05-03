@@ -14,8 +14,5 @@ $(function() {
 			source: fuente
 		});
 
-		$( "#sucursal2" ).autocomplete({
-			source: fuente
-		});
 	});
 </script>

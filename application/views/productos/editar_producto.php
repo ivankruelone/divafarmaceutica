@@ -85,6 +85,11 @@
             </p>
 
             <p>
+                <label for="limitado">Descuento Limitado</label>
+                <input type="number" name="limitado" id="limitado" value="<?php echo $row->limitado?>" required="required" />
+            </p>
+
+            <p>
                 <label for="activo">El Producto esta Activo</label>
                 <?php echo form_dropdown('activo', $iva, $row->activo, 'id="activo"');?>
             </p>

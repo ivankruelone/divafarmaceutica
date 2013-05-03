@@ -44,14 +44,16 @@
         <?php if($row->estatus == 0){?>
             <?php echo form_open('inv/submit_captura_clave', array('class' => 'form', 'id' => 'captura_clave_form'));?>
             <fieldset>
-            <legend>Captura Clave y Piezas y continua</legend>
+            <legend>Captura Clave y Piezas y continua: <span id="mensajito" style="color: red; font-weight: bolder;">CLAVE</span></legend>
                 
                 <input type="text" name="clave" id="clave" required="required" placeholder="Clave" />
                 <input type="number" name="piezas" id="piezas" required="required" placeholder="Piezas" />
-                <input type="text" name="lote" id="lote" required="required" placeholder="Lote" />
-                <input type="text" name="caducidad" id="caducidad" required="required" placeholder="Caducidad" pattern="(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic|ENE|FEB|MAR|ABR|MAY|JUN|JUL|AGO|SEP|OCT|NOV|DIC|01|02|03|04|05|06|07|08|09|10|11|12)/(<?php echo $anios_validos;?>)|SC|sc" />
+                <input type="text" name="lote" id="lote" required="required" placeholder="Lote" value="SL" />
+                <input type="text" name="caducidad" id="caducidad" required="required" placeholder="Caducidad" pattern="(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic|ENE|FEB|MAR|ABR|MAY|JUN|JUL|AGO|SEP|OCT|NOV|DIC|01|02|03|04|05|06|07|08|09|10|11|12)/(<?php echo $anios_validos;?>)|SC|sc" value="SC" />
                 <input type="number" name="precio" id="precio" required="required" placeholder="Precio" />
                 <button class="small" type="submit">Agregar</button>
+                
+                
 
 
             </fieldset>

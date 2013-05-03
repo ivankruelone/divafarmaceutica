@@ -7,6 +7,12 @@
             <th>Descripcion</th>
             <th>Requeridas</th>
             <th>Surtidas</th>
+            <th>Precio</th>
+            <th>Importe</th>
+            <th>% Desc.</th>
+            <th>Desc.</th>
+            <th>IVA</th>
+            <th>Subtotal</th>
             <th>Lote</th>
             <th>Caducidad</th>
             </tr>
@@ -15,14 +21,24 @@
             <?php
             $can = 0;
             $sur = 0;
+            $importe = 0;
+            $desc = 0;
+            $iva = 0;
+            $subtotal = 0;
             foreach($query as $row){
             ?>
             <tr>
             <td><?php echo $row->id;?></td>
             <td><?php echo $row->clave;?></td>
             <td><?php echo $row->descripcion;?></td>
-            <td align="right"><?php echo number_format($row->canreq, 0);?></td>
-            <td align="right"><?php echo $row->cansur; ?></td>
+            <td style="text-align: right;"><?php echo number_format($row->canreq, 0);?></td>
+            <td style="text-align: right;"><?php echo $row->cansur; ?></td>
+            <td style="text-align: right;"><?php echo number_format($row->precio, 2); ?></td>
+            <td style="text-align: right;"><?php echo number_format($row->importe, 2); ?></td>
+            <td style="text-align: right;"><?php echo number_format($row->descuento_por, 2); ?></td>
+            <td style="text-align: right;"><?php echo number_format($row->descuento, 2); ?></td>
+            <td style="text-align: right;"><?php echo number_format($row->iva, 2); ?></td>
+            <td style="text-align: right;"><?php echo number_format($row->subtotal, 2); ?></td>
             <td><?php echo $row->lote; ?></td>
             <td><?php echo $row->caducidad; ?></td>
             </tr>
@@ -30,6 +46,10 @@
             <?php
             $can = $can + $row->canreq;
             $sur = $sur + $row->cansur;
+            $importe = $importe + $row->importe;
+            $desc = $desc + $row->descuento;
+            $iva = $iva + $row->iva;
+            $subtotal = $subtotal + $row->subtotal;
             
             $this->db->where('d_id', $row->id);
             $q2 = $this->db->get('detalle_lotes');
@@ -49,10 +69,21 @@
             </tbody>
             <tfoot>
             <tr>
-            <td colspan="3" align="right">Totales</td>
-            <td align="right" id="canreq_bottom"><?php echo number_format($can, 0);?></td>
-            <td align="right" id="cansur_bottom"><?php echo number_format($sur, 0);?></td>
-            <td colspan="3">&nbsp;</td>
+            <td colspan="3" style="text-align: right;">Totales</td>
+            <td style="text-align: right;" id="canreq_bottom"><?php echo number_format($can, 0);?></td>
+            <td style="text-align: right;" id="cansur_bottom"><?php echo number_format($sur, 0);?></td>
+            <td>&nbsp;</td>
+            <td style="text-align: right;"><?php echo number_format($importe, 2);?></td>
+            <td>&nbsp;</td>
+            <td style="text-align: right;"><?php echo number_format($desc, 2);?></td>
+            <td style="text-align: right;"><?php echo number_format($iva, 2);?></td>
+            <td style="text-align: right;"><?php echo number_format($subtotal, 2);?></td>
+            <td colspan="2">&nbsp;</td>
+            </tr>
+            <tr>
+            <td colspan="9" style="text-align: right;">Total a pagar</td>
+            <td colspan="2" style="text-align: right;"><?php echo number_format($subtotal + $iva, 2);?></td>
+            <td colspan="2">&nbsp;</td>
             </tr>
             </tfoot>
             </table>

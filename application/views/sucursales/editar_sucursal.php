@@ -19,80 +19,92 @@
             <legend>Modifica los valores y da click en Guardar</legend>
             
             <p>
-                <label for="cia">Compa&ntilde;ia</label>
-                <?php echo form_dropdown('cia', $cias, $row->cia, 'id="cia"');?>
-            </p>
-
-            <p>
-                <label for="numsuc">Numero de Sucursal</label>
-                 <input type="number" name="numsuc" id="numsuc" value="<?php echo $row->numsuc; ?>" required="required" />
+                <label for="rfc">RFC</label>
+                <input type="text" name="rfc" id="rfc" maxlength="13" required="required" value="<?php echo $row->rfc; ?>" />
+                <span id="span_rfc"></span>
             </p>
             
             <p>
-                <label for="sucursal">Sucursal</label>
-                <input type="text" name="sucursal" id="sucursal" maxlength="100" class="full-width" value="<?php echo $row->sucursal; ?>" required="required" />
+                <label for="sucursal">Razon Social</label>
+                <input type="text" name="sucursal" id="sucursal" maxlength="100" class="full-width" required="required"  value="<?php echo $row->sucursal; ?>"  />
             </p>
 
             <p>
                 <label for="calle">Calle</label>
-                <input type="text" name="calle" id="calle" class="full-width" value="<?php echo $row->calle; ?>" required="required" />
+                <input type="text" name="calle" id="calle" class="full-width" required="required"  value="<?php echo $row->calle; ?>"  />
             </p>
 
             <p>
                 <label for="referencia">Referencia</label>
-                <input type="text" name="referencia" id="referencia" value="<?php echo $row->referencia; ?>" class="full-width" />
+                <input type="text" name="referencia" id="referencia" class="full-width"  value="<?php echo $row->referencia; ?>"  />
             </p>
 
             <p>
                 <label for="exterior">No. Exterior</label>
-                <input type="text" name="exterior" id="exterior" value="<?php echo $row->exterior; ?>" required="required" />
+                <input type="text" name="exterior" id="exterior" required="required"  value="<?php echo $row->exterior; ?>"  />
             </p>
 
             <p>
                 <label for="interior">No. Interior</label>
-                <input type="text" name="interior" id="interior" value="<?php echo $row->interior; ?>"/>
+                <input type="text" name="interior" id="interior"  value="<?php echo $row->interior; ?>"  />
             </p>
 
             <p>
                 <label for="cp">Codigo Postal</label>
-                <input type="text" name="cp" id="cp" pattern="[0-9]{5}" maxlength="5" value="<?php echo str_pad($row->cp, 5, '0', STR_PAD_LEFT); ?>" required="required"/>
+                <input type="text" name="cp" id="cp" pattern="[0-9]{5}" maxlength="5" required="required"  value="<?php echo $row->cp; ?>" />
             </p>
 
             <p>
                 <label for="colonia">Colonia</label>
-                <input type="text" name="colonia" id="colonia" class="full-width" value="<?php echo $row->colonia; ?>" required="required" />
+                <input type="text" name="colonia" id="colonia" class="full-width" required="required"  value="<?php echo $row->colonia; ?>"  />
             </p>
 
             <p>
                 <label for="municipio">Municipio o Delegacion</label>
-                <input type="text" name="municipio" id="municipio" class="full-width" value="<?php echo $row->municipio; ?>" required="required" />
+                <input type="text" name="municipio" id="municipio" class="full-width" required="required"  value="<?php echo $row->municipio; ?>"  />
             </p>
             
             <p>
-                <label for="estado_int">Estado</label>
-                <?php echo form_dropdown('estado_int', $estados, $row->estado_int, 'id="estado_int"');?>
+                <label for="estado">Estado</label>
+                <input type="text" name="estado" id="estado" class="full-width" required="required"  value="<?php echo $row->estado; ?>"  />
             </p>
 
             <p>
-                <label for="juris">Jurisdicci&oacute;n</label>
-                <?php echo form_dropdown('juris', $juris, $row->juris, 'id="juris"');?>
+                <label for="pais">Pais</label>
+                <input type="text" name="pais" id="pais" class="full-width" value="MEXICO" required="required"  value="<?php echo $row->pais; ?>"  />
             </p>
 
             <p>
-                <label for="diaped">Dia de Pedido</label>
-                <?php echo form_dropdown('diaped', $dias, $row->diaped, 'id="diaped"');?>
+                <label for="contacto">Contacto</label>
+                <input type="text" name="contacto" id="contacto" class="full-width"  value="<?php echo $row->contacto; ?>"  />
             </p>
 
             <p>
-                <label for="auto">Pedido Automatizado</label>
-                <?php echo form_dropdown('auto', $a, $row->auto, 'id="auto"');?>
+                <label for="telefono">Telefono</label>
+                <input type="text" name="tel" id="tel" pattern="[0-9]{10}" maxlength="10" class="full-width"  value="<?php echo $row->tel; ?>"  />
             </p>
 
             <p>
-                <label for="cad_min">Caducidad Minima Aceptada (En dias)</label>
-                <input type="number" name="cad_min" id="cad_min" pattern="\d+" value="<?php echo $row->cad_min; ?>" required="required" />
+                <label for="email">E-mail</label>
+                <input type="email" name="email" id="email" class="full-width"  value="<?php echo $row->email; ?>"  />
             </p>
             
+            
+            <p>
+                <label for="condiciones">Condiciones de Pago</label>
+                <?php echo form_dropdown('condiciones', $condiciones, $row->condiciones, 'id="condiciones"');?>
+            </p>
+            
+            <p>
+                <label for="limite">Limite de Credito</label>
+                <input type="text" name="limite" id="limite" pattern="\d+(\.\d{2})?" required="required"  value="<?php echo $row->limite; ?>"  />
+            </p>
+
+            <p>
+                <label for="descuento">Descuento Fijo</label>
+                <input type="text" name="descuento" id="descuento" pattern="\d+(\.\d{2})?" required="required"  value="<?php echo $row->descuento; ?>"  />
+            </p>
+
             </fieldset>
             
             <p>

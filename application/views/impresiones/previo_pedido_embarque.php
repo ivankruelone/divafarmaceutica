@@ -64,7 +64,7 @@ $pdf->setLanguageArray($l);
 // ---------------------------------------------------------
 
 // set font
-$pdf->SetFont('times', '', 8);
+$pdf->SetFont('times', '', 6);
 
 // add a page
 $pdf->AddPage();
@@ -76,14 +76,6 @@ EOF;
         // output the HTML content
 $pdf->writeHTML($html, true, false, true, false, '');
 
-$pdf->AddPage();
-
-$html = <<<EOF
-$formato
-EOF;
-
-        // output the HTML content
-$pdf->writeHTML($html, true, false, true, false, '');
 
 // ---------------------------------------------------------
 

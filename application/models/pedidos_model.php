@@ -15,6 +15,19 @@ class Pedidos_model extends CI_Model {
         $this->user_id = $this->session->userdata('id');
     }
     
+    function empleados()
+    {
+        $query = $this->db->get('personal');
+        return $query->result();
+    }
+    
+    function empleado($num_emp)
+    {
+        $this->db->where('num_emp', $num_emp);
+        $query = $this->db->get('personal');
+        return $query->row();
+    }
+
     function insert_pedido()
     {
         $a = explode('-', $this->input->post('sucursal'));
@@ -140,7 +153,10 @@ class Pedidos_model extends CI_Model {
             $piezas = $this->input->post('piezas');
         }
         
-        
+        $descuento = $this->input->post('descuento');
+        if($descuento == null){
+            $descuento = 0;
+        }
         
         if($this->busca_clave_pedidos($p_id, $clave) == 0)
         {
@@ -154,6 +170,7 @@ class Pedidos_model extends CI_Model {
                 $data->producto_id = $row->id;
                 $data->canreq = $piezas;
                 $data->clave = $row->clave;
+                $data->descuento_por = $descuento;
                 
                 $data->descripcion = trim($row->descripcion);
                 $data->unidad = trim($row->unidad);
@@ -164,7 +181,10 @@ class Pedidos_model extends CI_Model {
                 
                 $this->db->insert('detalle', $data);
                 
-                return $this->db->insert_id();
+                $insert = $this->db->insert_id();
+                $this->calcula_importe($insert);
+                
+                return $insert;
             
             }else{
                 return 0;
@@ -173,6 +193,54 @@ class Pedidos_model extends CI_Model {
         }else{
             return 0;
         }
+    }
+    
+    function calcula_importe($id)
+    {
+        $sql = "SELECT s.descuento, precio_diva, ifnull(d.cansur, 0) as cansur, d.descuento_por, r.iva, r.limitado
+        FROM detalle d
+inner join pedidos p on d.p_id = p.id
+inner join sucursales s on p.sucursal_id = s.numsuc
+inner join productos r on d.producto_id = r.id
+where d.id = ?;";
+        $query = $this->db->query($sql, $id);
+        $row = $query->row();
+        
+        $descuento_por = null;
+        if($row->descuento_por > 0){
+            $descuento_por = $row->descuento_por;
+        }else{
+            $descuento_por = $row->descuento;
+        }
+        
+        if($row->limitado > 0)
+        {
+            $descuento_por = $row->limitado;
+        }
+        
+        $importe = $row->cansur * $row->precio_diva;
+        $descuento = ($importe * ($descuento_por / 100));
+        
+        if($row->iva == 1){
+            $iva = ($importe - $descuento) * (0.16);
+        }else{
+            $iva = 0;
+        }
+        
+        $subtotal = $importe - $descuento;
+        
+        //id, precio, importe, descuento_por, descuento, iva, subtotal
+        $data = new stdClass();
+        $data->precio = $row->precio_diva;
+        $data->importe = $importe;
+        $data->descuento_por = $descuento_por;
+        $data->descuento = $descuento;
+        $data->iva = $iva;
+        $data->subtotal = $subtotal;
+        
+        $this->db->where('id', $id);
+        $this->db->update('detalle', $data);
+        
     }
     
     function busca_clave_pedidos($p_id, $clave)
@@ -185,7 +253,7 @@ class Pedidos_model extends CI_Model {
 
     function pedidos($estatus = null, $limit, $offset = 0)
     {
-        $this->db->select('p.*, s.numsuc, sucursal, nombre, e.estatus as est, sum(d.canreq) as canreq, sum(d.cansur) as cansur');
+        $this->db->select('p.*, s.numsuc, sucursal, nombre, e.estatus as est, sum(d.canreq) as canreq, sum(d.cansur) as cansur, sum(iva + subtotal) as total');
         $this->db->from('pedidos p');
         $this->db->join('sucursales s', 'p.sucursal_id = s.numsuc', 'LEFT');
         $this->db->join('usuarios u', 'p.user_id = u.id', 'LEFT');
@@ -482,6 +550,8 @@ class Pedidos_model extends CI_Model {
         $this->db->where('id', $this->input->post('id'));
         $this->db->update('detalle');
         
+        $this->calcula_importe($this->input->post('id'));
+        
         $this->db->where('id', $this->input->post('id'));
         $q1 = $this->db->get('detalle');
         $row1 = $q1->row();
@@ -621,7 +691,8 @@ class Pedidos_model extends CI_Model {
     function cerrar_surtido($id)
     {
         $data = array(
-                'estatus' => 2
+                'estatus' => 2,
+                'surtio' => strtoupper($this->input->post('surtio'))
                 );
         $this->db->set('f_surtido', 'now()', false);
         $this->db->where('id', $id);
@@ -721,16 +792,43 @@ on duplicate key update caducidad=values(caducidad), inv = cast((ifnull(inv, 0) 
             }
         }
     }
+    
+    function cerrar_embarcado($id, $fecha)
+    {
+        $data = new stdClass();
+        $data = array(
+                'estatus' => 4,
+                'f_ruta' => $fecha
+                );
+        $this->db->where('id', $id);
+        $this->db->update('pedidos', $data);
+        
+        return $this->db->affected_rows();
+    }
+
+    function cerrar_entregado($id, $fecha, $forma, $referencia)
+    {
+        $data = new stdClass();
+        $data = array(
+                'estatus' => 6,
+                'f_pago' => $fecha,
+                'forma' => $forma,
+                'referencia' => $referencia
+                );
+        $this->db->where('id', $id);
+        $this->db->update('pedidos', $data);
+        
+        return $this->db->affected_rows();
+    }
 
     function previo_pedido_header_alt($id)
     {
-        $this->db->select('p.id, p.fecha, p.sucursal_id, sucursal, s.estado, s.juris, j.jurisdiccion');
+        $this->db->select('p.id, p.fecha, p.sucursal_id, sucursal, s.estado, s.juris');
         $this->db->from('pedidos p');
         $this->db->join('sucursales s', 'p.sucursal_id = s.numsuc');
-        $this->db->join('juris j', 's.juris = j.juris and s.estado_int = j.estado');
         $this->db->where('p.id', $id);
         $query = $this->db->get();
-        
+        echo $this->db->last_query();
         $row = $query->row();
         
         $logo = array(
@@ -742,7 +840,7 @@ on duplicate key update caducidad=values(caducidad), inv = cast((ifnull(inv, 0) 
         $tabla = '<table cellpadding="2">
             <tr>
                 <td rowspan="6" width="130px">'.img($logo).'</td>
-                <td rowspan="6" width="400px" align="center"><font size="10">'.EMPRESA.'<br />'.ALMACEN.$row->estado.'<br />'.$row->jurisdiccion.'<br />SUCURSAL: '.$row->sucursal.'</font></td>
+                <td rowspan="6" width="400px" align="center"><font size="10">'.EMPRESA.'<br />'.ALMACEN.$row->estado.'<br />CLIENTE: '.$row->sucursal.'</font></td>
                 <td width="65px">FOLIO: </td>
                 <td width="65px" align="right">'.$row->id.'</td>
             </tr>
@@ -751,7 +849,7 @@ on duplicate key update caducidad=values(caducidad), inv = cast((ifnull(inv, 0) 
                 <td width="65px" align="right">'.$row->fecha.'</td>
             </tr>
             <tr>
-                <td width="65px"># SUC: </td>
+                <td width="65px"># CLIENTE: </td>
                 <td width="65px" align="right">'.$row->sucursal_id.'</td>
             </tr>
             <tr>
@@ -773,10 +871,9 @@ on duplicate key update caducidad=values(caducidad), inv = cast((ifnull(inv, 0) 
     
     function previo_pedido_header($id)
     {
-        $this->db->select('p.id, p.fecha, p.sucursal_id, sucursal, s.estado, s.juris, j.jurisdiccion');
+        $this->db->select('p.id, p.fecha, p.sucursal_id, sucursal, s.estado, s.juris');
         $this->db->from('pedidos p');
         $this->db->join('sucursales s', 'p.sucursal_id = s.numsuc');
-        $this->db->join('juris j', 's.juris = j.juris and s.estado_int = j.estado');
         $this->db->where('p.id', $id);
         $query = $this->db->get();
         
@@ -791,7 +888,7 @@ on duplicate key update caducidad=values(caducidad), inv = cast((ifnull(inv, 0) 
         $tabla = '<table cellpadding="5">
             <tr>
                 <td rowspan="3" width="130px">'.img($logo).'</td>
-                <td rowspan="3" width="400px" align="center"><font size="10">'.EMPRESA.'<br />'.ALMACEN.$row->estado.'<br />'.$row->jurisdiccion.'<br />SUCURSAL: '.$row->sucursal.'</font></td>
+                <td rowspan="3" width="400px" align="center"><font size="10">'.EMPRESA.'<br />'.ALMACEN.$row->estado.'<br />CLIENTE: '.$row->sucursal.'</font></td>
                 <td width="65px">FOLIO: </td>
                 <td width="65px" align="right">'.$row->id.'</td>
             </tr>
@@ -800,7 +897,7 @@ on duplicate key update caducidad=values(caducidad), inv = cast((ifnull(inv, 0) 
                 <td width="65px" align="right">'.$row->fecha.'</td>
             </tr>
             <tr>
-                <td width="65px"># SUC: </td>
+                <td width="65px"># CLIENTE: </td>
                 <td width="65px" align="right">'.$row->sucursal_id.'</td>
             </tr>
         </table>';
@@ -812,10 +909,12 @@ on duplicate key update caducidad=values(caducidad), inv = cast((ifnull(inv, 0) 
     {
         $this->db->select('p.id, p.fecha, p.sucursal_id, sucursal, s.estado, s.juris, j.jurisdiccion');
         $this->db->from('pedidos p');
-        $this->db->join('sucursales s', 'p.sucursal_id = s.numsuc');
-        $this->db->join('juris j', 's.juris = j.juris and s.estado_int = j.estado');
+        $this->db->join('sucursales s', 'p.sucursal_id = s.numsuc', 'LEFT');
+        $this->db->join('juris j', 's.juris = j.juris and s.estado_int = j.estado', 'LEFT');
         $this->db->where('p.id', $id);
         $query = $this->db->get();
+        
+        echo $this->db->last_query();
         
         $row = $query->row();
         
@@ -827,8 +926,12 @@ on duplicate key update caducidad=values(caducidad), inv = cast((ifnull(inv, 0) 
         
         $tabla = '<table cellpadding="5">
             <tr>
-                <td rowspan="3" width="130px">'.img($logo).'</td>
-                <td rowspan="3" width="470px" align="center"><font size="10">'.EMPRESA.'<br />'.ALMACEN.$row->estado.'<br />'.$row->jurisdiccion.'<br />SUCURSAL: '.$row->sucursal.'</font></td>
+                <td rowspan="4" width="130px">'.img($logo).'</td>
+                <td rowspan="4" width="470px" align="center"><font size="10">'.EMPRESA.'<br />'.ALMACEN.$row->estado.'<br />'.$row->jurisdiccion.'<br />CLIENTE: '.$row->sucursal.'</font></td>
+                <td width="65px">REMISION</td>
+                <td width="65px" align="right">&nbsp;</td>
+            </tr>
+            <tr>
                 <td width="65px">FOLIO: </td>
                 <td width="65px" align="right">'.$row->id.'</td>
             </tr>
@@ -837,7 +940,7 @@ on duplicate key update caducidad=values(caducidad), inv = cast((ifnull(inv, 0) 
                 <td width="65px" align="right">'.$row->fecha.'</td>
             </tr>
             <tr>
-                <td width="65px"># SUC: </td>
+                <td width="65px"># CLI: </td>
                 <td width="65px" align="right">'.$row->sucursal_id.'</td>
             </tr>
         </table>';
@@ -899,8 +1002,18 @@ on duplicate key update caducidad=values(caducidad), inv = cast((ifnull(inv, 0) 
                 <td align="right">'.number_format($canreq, 0).'</td>
                 <td align="right">&nbsp;</td>
             </tr>
+            <tr>
+                <td colspan="4">&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan="4" align="center">&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan="4" align="center">Nombre y firma del surtidor.</td>
+            </tr>
         </tfoot>
-        </table>';
+        </table>
+        ';
         
         return $tabla;
     }
@@ -1020,52 +1133,74 @@ group by tipo_producto, subtipo_producto;";
         $tabla.= '<table cellpadding="4">
         <thead>
             <tr>
-                <th width="100px">Clave</th>
-                <th width="410px">Descripcion</th>
-                <th width="70px" align="right">Req.</th>
-                <th width="70px" align="right">Sur.</th>
-                <th width="70px" align="right">LOT CAD</th>
+                <th width="70px">Clave</th>
+                <th width="300px">Descripcion</th>
+                <th width="50px" align="right">Precio</th>
+                <th width="50px" align="right">Sur.</th>
+                <th width="50px" align="right">Importe</th>
+                <th width="50px" align="right">Descuento</th>
+                <th width="50px" align="right">Iva</th>
+                <th width="50px" align="right">Subtotal</th>
+                <th width="50px" align="right">LOT CAD</th>
             </tr>
         </thead>
         <tbody>
         ';
-        $canreq = 0;
         $cansur = 0;
+        $importe = 0;
+        $descuento = 0;
+        $iva = 0;
+        $subtotal = 0;
         
         foreach($query->result() as $row)
         {
             
             
             $tabla.= '<tr>
-                <td width="100px">'.$row->clave.'</td>
-                <td width="410px">'.$row->descripcion.'</td>
-                <td width="70px" align="right">'.number_format($row->canreq, 0).'</td>
-                <td width="70px" align="right">'.number_format($row->cansur, 0).'</td>
-                <td width="70px" align="left">'.$row->lote.' - '.formato_caducidad($row->caducidad).'</td>
+                <td width="70px">'.$row->clave.'</td>
+                <td width="300px">'.$row->descripcion.'</td>
+                <td width="50px" align="right">'.number_format($row->precio, 2).'</td>
+                <td width="50px" align="right">'.number_format($row->cansur, 0).'</td>
+                <td width="50px" align="right">'.number_format($row->importe, 2).'</td>
+                <td width="50px" align="right">'.number_format($row->descuento, 2).'</td>
+                <td width="50px" align="right">'.number_format($row->iva, 2).'</td>
+                <td width="50px" align="right">'.number_format($row->subtotal, 2).'</td>
+                <td width="50px" align="left">'.$row->lote.' - '.formato_caducidad($row->caducidad).'</td>
             </tr>
             ';
-            $canreq = $canreq + $row->canreq;
             $cansur = $cansur + $row->cansur;
+            $importe = $importe + $row->importe;
+            $descuento = $descuento + $row->descuento;
+            $iva = $iva + $row->iva;
+            $subtotal = $subtotal + $row->subtotal;
         }
         
         $tabla.= '</tbody>
         <tfoot>
             <tr>
-                <td colspan="2" align="right">Total</td>
-                <td align="right">'.number_format($canreq, 0).'</td>
+                <td colspan="3" align="right">Total</td>
                 <td align="right">'.number_format($cansur, 0).'</td>
+                <td align="right">'.number_format($importe, 2).'</td>
+                <td align="right">'.number_format($descuento, 2).'</td>
+                <td align="right">'.number_format($iva, 2).'</td>
+                <td align="right">'.number_format($subtotal, 2).'</td>
+                <td align="right">&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan="6" align="right">Total a pagar</td>
+                <td align="right" colspan="2">'.number_format($subtotal + $iva, 2).'</td>
                 <td align="right">&nbsp;</td>
             </tr>
             <tr>
                 <td colspan="2" style="font-size: xx-large">Numero de Cajas: '.$row2->cajas.'</td>
-                <td colspan="3" style="font-size: xx-large">Numero de Hieleras: '.$row2->hieleras.'</td>
+                <td colspan="7" style="font-size: xx-large">Numero de Hieleras: '.$row2->hieleras.'</td>
             </tr>
             <tr>
                 <td colspan="2" style="font-size: xx-large; width: 360px;">Surtidor: </td>
-                <td colspan="2" style="font-size: xx-large; width: 360px;">Empacador: </td>
+                <td colspan="7" style="font-size: xx-large; width: 360px;">Empacador: </td>
             </tr>
             <tr>
-                <td colspan="5" width="720"  style="font-size: x-large;">Observaciones: '.$row2->observaciones.'</td>
+                <td colspan="9" width="720"  style="font-size: x-large;">Observaciones: '.$row2->observaciones.'</td>
             </tr>
         </tfoot>
         </table>';
@@ -1085,7 +1220,7 @@ group by tipo_producto, subtipo_producto;";
         
         <tr>
             <td>
-                A U T O R I Z O<br />MANUEL SIERRA CUESTA<br />JEFE DE ALMACEN
+                A U T O R I Z O<br />FERNANDO FIERRO MEDEL<br />JEFE DE ALMACEN
             </td>
             <td>
                 Nombre y Firma del Operador
@@ -1416,6 +1551,24 @@ where op_id = ? and p.suc = ? and s.tipo_producto = ? and s.subtipo_producto = ?
         
         $this->db->where('id', $id);
         $this->db->update('pedidos_retail_c', $a);
+    }
+    
+    function nuevo_empleado_insert($nombre)
+    {
+        $data = new stdClass();
+        $data->nombre = $nombre;
+        $this->db->insert('personal', $data);
+        return $this->db->insert_id();
+    }
+
+    function empleado_update($num_emp, $nombre, $activo)
+    {
+        $data = new stdClass();
+        $data->nombre = $nombre;
+        $data->activo = $activo;
+        $this->db->where('num_emp', $num_emp);
+        $this->db->update('personal', $data);
+        return $this->db->affected_rows();
     }
 
 }

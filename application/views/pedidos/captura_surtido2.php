@@ -1,3 +1,4 @@
+<section class="grid_12">
 <div class="block-border">
     <?php echo form_open('pedidos/submit_cierra_surtido', array('class' => 'form', 'id' => 'cierra_surtido_form'));?>
     <div class="block-content" id="hoja_captura">
@@ -54,3 +55,4 @@
             <?php echo form_hidden('estatus', $row->estatus);?>
             <?php echo form_close();?>
 </div>
+</section>

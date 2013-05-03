@@ -1,3 +1,4 @@
+<section class="grid_12">
 <div class="block-border">
     <div class="block-content" id="hoja_captura">
         <div align="center">
@@ -66,4 +67,22 @@
     
     </div>
     
+    <div class="block-content">
+                <?php echo form_open('pedidos/submit_captura_fecha_entrega', array('class' => 'form', 'id' => 'captura_clave_form'));?>
+            <fieldset>
+            <legend>Captura la fecha en que se entrego (es importante ya que si es un cliente a credito a partir de esta fecha inicia su plazo para pago)</legend>
+                
+                <input type="text" name="fecha" id="fecha" required="required" class="datepicker" />
+                
+                <button class="big" type="submit">Agregar</button>
+
+
+            </fieldset>
+            <?php echo form_hidden('id', $row->id);?>
+            <?php echo form_hidden('estatus', $row->estatus);?>
+            <?php echo form_close();?>
+
+    </div>
+    
 </div>
+</section>

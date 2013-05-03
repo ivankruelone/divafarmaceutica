@@ -100,6 +100,11 @@
                 <input type="text" name="limite" id="limite" pattern="\d+(\.\d{2})?" required="required" />
             </p>
 
+            <p>
+                <label for="descuento">Descuento Fijo</label>
+                <input type="text" name="descuento" id="descuento" pattern="\d+(\.\d{2})?" required="required" />
+            </p>
+
             </fieldset>
             
             <p>

@@ -22,8 +22,10 @@
 					<thead>
 						<tr>
 							<th scope="col">ID</th>
-							<th scope="col">Sucursal</th>
+							<th scope="col">Raz&oacute;n social</th>
 							<th scope="col">Domicilio</th>
+							<th scope="col">Contacto</th>
+							<th scope="col">Condiciones</th>
 							<th scope="col">&nbsp;</th>
 						</tr>
 					</thead>
@@ -47,11 +49,21 @@
                             0 => 'NO',
                             1 => 'SI'
                             );
+                            
+                           $condiciones = null; 
+                        if($row->condiciones == 0)
+                        {
+                            $condiciones = 'CONTADO';
+                        }else{
+                            $condiciones = 'CREDITO '.$row->condiciones.' DIAS';
+                        }
                     ?>
 						<tr>
 							<td><?php echo $row->id;?></td>
 							<td><?php echo $row->sucursal;?></td>
 							<td><?php echo $row->calle." ".$row->exterior." ".$row->interior.' '.$row->colonia.' '.$row->municipio.' '.$row->cp;?></td>
+							<td><?php echo $row->contacto." <br />Tel.: ".$row->tel." <br />E-mail: ".$row->email;?></td>
+							<td><?php echo $condiciones." <br />Limite de credito.: ".number_format($row->limite, 2);?></td>
 							<td class="table-actions" align="center">
                                 <?php echo anchor('sucursales/editar_sucursal/'.$row->id.'/'.$submenu, img($image2), array('title' => 'Modificar', 'class' => 'with-tip'));?>
                                 <?php echo anchor('#map_cambas', img($image1), array('title' => 'Ver en el mapa', 'class' => 'with-tip', 'id' => 'elige_'.$row->colonia.', '.$row->municipio.', '.$row->estado.', '.str_pad($row->cp, 5, "0", STR_PAD_LEFT).', '.$row->calle.' '.$row->exterior));?>

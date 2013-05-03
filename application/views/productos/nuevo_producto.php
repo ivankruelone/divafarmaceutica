@@ -85,6 +85,11 @@
             </p>
 
             <p>
+                <label for="limitado">Descuento Limitado</label>
+                <input type="number" name="limitado" id="limitado" required="required" />
+            </p>
+
+            <p>
                 <button class="big" type="submit">Guardar Cambios</button>
             </p>
 

@@ -418,8 +418,16 @@ on duplicate key update caducidad=values(caducidad), inv = cast(values(inv) + in
         $this->db->select('id');
         $this->db->where('clave', $this->input->post('p_id'));
         $prod_id = $this->db->get('productos');
+        
+        if($prod_id->num_rows() > 0){
+            $producto_id = $prod_id->row();
+        }else{
+            $this->db->select('id');
+            $this->db->where('ean', $this->input->post('p_id'));
+            $prod_id = $this->db->get('productos');
+            $producto_id = $prod_id->row();
+        }
 
-        $producto_id = $prod_id->row();
 
         $data = new StdClass();
 

@@ -112,6 +112,7 @@ class Sucursales extends CI_Controller {
        $data['row'] = $this->sucursales_model->get_sucursal($id);
        $data['contenido'] = 'sucursales/editar_sucursal';
        $data['js'] = 'sucursales/js_editar_sucursal';
+       $data['condiciones'] = $this->comun->condiciones();
        $data['cias'] = $this->comun->cias_combo();
        $data['estados'] = $this->comun->estados_combo();
        $data['juris'] = $this->comun->juris_combo($id);

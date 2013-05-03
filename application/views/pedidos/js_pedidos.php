@@ -15,6 +15,12 @@
                         $bandera0 = img($image5);
                         $bandera1 = img($image4);
 ?>
+<link rel="stylesheet" href="<?php echo base_url();?>css/themes/base/jquery.ui.all.css" />
+<script src="<?php echo base_url();?>js/ui/jquery.ui.core.min.js"></script>
+<script src="<?php echo base_url();?>js/ui/jquery.ui.widget.min.js"></script>
+<script src="<?php echo base_url();?>js/ui/jquery.ui.position.min.js"></script>
+<script src="<?php echo base_url();?>js/ui/jquery.ui.dialog.min.js"></script>
+
 <script language="javascript" type="text/javascript">
 $.fn.dataTableExt.oStdClasses.sWrapper = 'no-margin last-child';
 $.fn.dataTableExt.oStdClasses.sInfo = 'message no-margin';
@@ -102,6 +108,25 @@ $(document).ready(function()
             return false;
         });
     });
+    
+    
+    $('.elige').click(function(event){
+    event.preventDefault();
+    var url = $(this).attr('href');
+    var titulo = $(this).attr('tittle');
+    
+    $( "#dialog" ).dialog({
+        modal: true,
+        open: function () {
+            $(this).load(url);           
+        },
+        title: titulo,
+        width: 500,
+        height: 300
+    });
+    
+});
+    
 });
 
 
@@ -195,5 +220,7 @@ $('span[id^="flag_"]').click(function(){
         });
     }
 });
+
+
 
 </script>

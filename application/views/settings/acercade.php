@@ -4,7 +4,7 @@
             <?php echo $titulo; ?>
     </h1>
     
-    <p align="justify">
+    <p style="text-align: justify;">
     
     Sistema Integral de Administraci&oacute;n de Inventarios.
     <br />

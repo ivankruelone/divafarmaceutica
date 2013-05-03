@@ -20,6 +20,14 @@ $(document).ready(function(){
         $('#rechazadas_top').html($('#rechazadas_bottom').html());
         $('#total_total').html(parseInt($('#rechazadas_bottom').html().replace(',', '')) + parseInt($('#total_bottom').html().replace(',', '')));
     });
+    
+    
+    $(":input").focus(function(){
+       var leyenda = $(this).attr('name').toUpperCase();
+       $('#mensajito').html(leyenda); 
+    });
+    
+    
 });
 
 

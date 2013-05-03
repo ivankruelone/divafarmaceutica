@@ -157,6 +157,8 @@
                                         echo anchor('inv/movimiento_excel/'.$row->id.'/'.$submenu, img($image8), array('title' => 'Bajar a excel', 'class' => 'with-tip', 'target' => '_blank'));
                                     }elseif($row->estatus == 2){
                                         
+                                    }elseif($row->estatus == 3){
+                                        echo anchor('cuentas/detalle_parcialidades_pagar/'.$row->id, img($image1), array('class' => 'elige', 'tittle' => "Id entrada: ".$row->id.", Folio: ".$row->referencia.", Proveedor: ".$row->proveedor));
                                     }
                                 ?>
 							</td>
@@ -166,6 +168,8 @@
                     ?>
 					</tbody>
             </table>
+            
+            <div id="dialog" title="Basic dialog">
             
             </p>
         </div>

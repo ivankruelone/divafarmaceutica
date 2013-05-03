@@ -53,6 +53,20 @@ class Productos_model extends CI_Model {
         $query = $this->db->get('productos');
         return $query->row();
     }
+    
+    function producto_clave_precio($clave, $proveedor)
+    {
+        $sql = "SELECT min(d.precio) as minimo, max(d.precio) as maximo, avg(d.precio) as promedio, p.clave, p.descripcion, o.razon
+        FROM entradas_c c
+inner join entradas d on c.id = d.e_id
+inner join productos p on d.p_id = p.id
+inner join proveedores o on c.proveedor_id = o.id
+where clave = ? and c.tipo = 1 and c.subtipo = 4 and estatus in(1, 3) and c.proveedor_id = ?
+group by clave;";
+
+        $query = $this->db->query($sql, array($clave, $proveedor));
+        return $query->row();
+    }
 
     function detalle($id){
         $this->db->select('p.*, t.tipo_producto as tipo, s.subtipo_producto as subtipo', FALSE);
@@ -77,10 +91,9 @@ class Productos_model extends CI_Model {
     }
     
     function autocomplete_estado($estado, $term){
-        $this->db->select('p.id, p.clave, SUBSTRING(p.descripcion, 1, 255) as descripcion, p.lc, e.estado', FALSE);
+        $this->db->select('p.id, p.clave, SUBSTRING(p.descripcion, 1, 255) as descripcion, p.lc, 0 as estado', FALSE);
         $this->db->from('productos p');
-        $this->db->join('productos_estados e', 'p.clave = e.clave');
-        $this->db->where("(p.clave like '%$term%' or p.descripcion like '%$term%') and e.estado = $estado and p.activo = 1", '', false);
+        $this->db->where("(p.clave like '%$term%' or p.descripcion like '%$term%' or p.ean like '%$term%') and p.activo = 1", '', false);
         $this->db->limit(15);
         $query = $this->db->get();
         
@@ -150,6 +163,7 @@ class Productos_model extends CI_Model {
         $data->max              = $this->input->post('max');
         $data->preorden         = $this->input->post('preorden');
         $data->activo           = $this->input->post('activo');
+        $data->limitado         = $this->input->post('limitado');
         
         $this->db->set('modificado', 'now()', false);
         
@@ -202,6 +216,7 @@ class Productos_model extends CI_Model {
             $data->min              = $this->input->post('min');
             $data->max              = $this->input->post('max');
             $data->preorden         = $this->input->post('preorden');
+            $data->limitado         = $this->input->post('limitado');
     
             $this->db->set('modificado', 'now()', false);
             $this->db->set('alta', 'now()', false);
